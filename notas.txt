@@ -1,0 +1,4 @@
+Cosas nuevas:
+ - debe moverse con el mouse si no se oprime ningun boton
+ - quitarle el frame.
+ - que on_hover sea cuando aparece el boton de descargar desde la derecha con smoothmove
