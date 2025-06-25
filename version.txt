@@ -1,0 +1,9 @@
+# -----------------------||||||||||||||||||||||||||||--------------------------------#
+0.4 - 25/6/2025
+
+Ahora si, a pertir de aqui empiezan las versiones con mas seriedad
+
+esto sera como el commit inicial, asi que paso de escribir los cambios xD (pereza)
+
+bueno al menos lo que genera ChatGPT:
+Added the new Programa_search component for displaying and interacting with program entries. Refactored main.py to use Programa_search instead of manual Bloque construction, improving modularity and maintainability. Enhanced AssetDownloader to return file paths and provide debug output. Updated version to 0.4.0 and added version.txt for version tracking.

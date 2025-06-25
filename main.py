@@ -7,6 +7,9 @@ from typing import override
 from Utilidades_pygame.base_app_class import Base_class
 from Utilidades_pygame.config_default import Config
 from Assest_downloader import AssetDownloader
+from componentes.principal import Programa_search
+
+
 class TecraTools(Base_class):
     @override
     def otras_variables(self):
@@ -21,6 +24,8 @@ class TecraTools(Base_class):
         self.carpeta_cache.mkdir(parents=True, exist_ok=True)
         
         self.asset_downloader = AssetDownloader(self.api_url, self.carpeta_cache)
+
+        self.Func_pool.add('buscar_programas', self.buscar_programas)
 
     @override
     def generate_objs(self):
@@ -53,7 +58,8 @@ class TecraTools(Base_class):
         self.last_win_pos = new_pos
         uti.win32_tools.front2(self.hwnd)
 
-        self.buscar_programas()
+        # self.buscar_programas()
+        self.Func_pool.start('buscar_programas')
 
     @override
     def otro_evento(self, actual_screen: str, evento: pag.event.Event):
@@ -76,16 +82,17 @@ class TecraTools(Base_class):
         self.bloque_main_programas.clear()
         
         for i,x in enumerate(response['lista']):
-            self.asset_downloader.download(self.api_url+x['icono'], x['icono'].split('/')[-1])
-            bloque_nuevo = uti_pag.Bloque((20,100*i), (330,80), 'topleft', border_color='white', border_width=3, border_radius=10)
-            bloque_nuevo.add(uti_pag.Text(x['nombre'].capitalize(), 13, self.config.fonts["mononoki"], (10, 10), dire='top'), (190,10))
-            text_split = x['descripcion'].split(' ')
-            text_des = '\n'.join([' '.join(text_split[i:i+5]) for i in range(0,len(text_split),5)])
-            bloque_nuevo.add(uti_pag.Text(text_des, 10, self.config.fonts["mononoki"], (180, 10), dire='left'), (80,35))
-            # bloque_nuevo.add(uti_pag.Text(x['descripcion'], 10, self.config.fonts["mononoki"], (50, 10), dire='top'), (50,35))
-            # print(self.carpeta_cache/(x['icono'].split('/')[-1]))
-            bloque_nuevo.add(uti_pag.Image(self.carpeta_cache/(x['icono'].split('/')[-1]), (30,30), 'topleft', (59,59), always_draw=True),'(10,10)')
-            self.bloque_main_programas.add(bloque_nuevo, (0,100*i +20), clicking=True)
+            # self.asset_downloader.download(self.api_url+x['icono'], x['icono'].split('/')[-1])
+            self.bloque_main_programas.add(
+                Programa_search(
+                    (0,100*i +20), x['icono'], x['nombre'].capitalize(), x['descripcion'], self.config.fonts["mononoki"],
+                    assest_downloader=self.asset_downloader,
+                    api_url=self.api_url,
+                    lock=self.lock,
+                    item = x
+                ), 
+                clicking=True
+            )
 
 if __name__ == "__main__":
     # 415,550
@@ -94,10 +101,11 @@ if __name__ == "__main__":
         resolution=(350,480),
         window_resize=False,
         title="TecraTools",
+        icon='./Data/images/Logo.ico',
         window_title="TecraTools",
         my_company="Edouard Sandoval",
         author="Edouard Sandoval",
-        version="1.0.0",
+        version="0.4.0",
         fonts={"mononoki": "./Data/fonts/mononoki Bold Nerd Font Complete Mono.ttf"},
         noframe=True
     )
