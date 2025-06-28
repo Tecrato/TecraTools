@@ -35,7 +35,7 @@ class Programa_search(uti_pag.Bloque):
         self.img = uti_pag.Image('./Data/images/Logo.png', (20,20), 'topleft', (55,55), always_draw=True)
 
         self.add(uti_pag.Text(title, 13, font, (10, 10), dire='left'))
-        self.add(uti_pag.Text(descripcion, 10, font, (85, 20), dire='topleft', text_align='left', max_width=150, wrap=True))
+        self.add(uti_pag.Text(descripcion, 10, font, (85, 20), dire='topleft', text_align='left', max_width=140, wrap=True))
         self.add(self.img)
 
         self.add(
@@ -62,7 +62,10 @@ class Programa_search(uti_pag.Bloque):
         return super().update_hover(mouse_pos)
 
     def set_img(self):
-        img = self.asset_downloader.download(self.api_url+'/'+self.img_path, self.img_path.split('/')[-1])
+        try:
+            img = self.asset_downloader.download(self.api_url+'/'+self.img_path, self.img_path.split('/')[-1])
+        except:
+            return
         with self.lock:
             self.img.path = img
         

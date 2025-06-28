@@ -1,4 +1,17 @@
 # -----------------------||||||||||||||||||||||||||||--------------------------------#
+0.5 - 28/6/2025
+
+# Correcciones
+ - Arreglado el problema de los bloques en la libreria, programa funcionando.
+ - implementado un lock al cambiar las imagenes de los bloques.
+
+# Cosas nuevas
+ - Implementado el loader por defecto de la libreria.
+ - Nuevo texto para cuando ocurre algun error buscando los programas.
+ - Nuevo boton de recargar busqueda.
+
+
+# -----------------------||||||||||||||||||||||||||||--------------------------------#
 0.4 - 25/6/2025
 
 Ahora si, a pertir de aqui empiezan las versiones con mas seriedad

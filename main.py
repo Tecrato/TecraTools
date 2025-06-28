@@ -4,6 +4,7 @@ import Utilidades_pygame as uti_pag
 from platformdirs import user_cache_path
 from typing import override
 
+from Utilidades_pygame.default_loader import Loader
 from Utilidades_pygame.base_app_class import Base_class
 from Utilidades_pygame.config_default import Config
 from Assest_downloader import AssetDownloader
@@ -18,6 +19,7 @@ class TecraTools(Base_class):
         self.windows_moving = False
         self.last_win_pos = (0,0)
         self.api_url = "https://tecrato.pythonanywhere.com"
+        self.loader = Loader(self.ventana_rect.center)
         
 
         self.carpeta_cache = user_cache_path(self.config.title, self.config.author)
@@ -36,19 +38,26 @@ class TecraTools(Base_class):
 
         self.bloque_main_programas = uti_pag.Bloque((10,50), (340,400), 'topleft')
 
+        self.text_main_mal_internet = uti_pag.Text('Revise su conexion a internet', 16, self.config.fonts["mononoki"], self.ventana_rect.center, dire='top', color='red')
+        self.btn_main_refresh = uti_pag.Button(
+            '', 18, self.config.fonts['simbolos'], (self.text_title.right+10,self.text_title.centery), dire='left', text_align='center', 
+            border_radius=-1, border_width=-1, toggle_rect=False, padding=5, color_rect_active= (80,80,80,20), color_rect=(40,40,40,40),
+            color='white',
+            func=lambda: self.Func_pool.start('buscar_programas')
+        )
+
         self.lists_screens['main']["draw"] = [
             self.text_title,
             self.btn_close,
-            self.bloque_main_programas
-        ]
-        self.lists_screens['main']["update"] = [
-            self.text_title,
-            self.btn_close,
             self.bloque_main_programas,
+            self.text_main_mal_internet,
+            self.btn_main_refresh
         ]
+        self.lists_screens['main']["update"] = self.lists_screens['main']["draw"]
         self.lists_screens['main']["click"] = [
             self.btn_close,
             self.bloque_main_programas,
+            self.btn_main_refresh,
         ]
     
     @override
@@ -58,7 +67,6 @@ class TecraTools(Base_class):
         self.last_win_pos = new_pos
         uti.win32_tools.front2(self.hwnd)
 
-        # self.buscar_programas()
         self.Func_pool.start('buscar_programas')
 
     @override
@@ -77,22 +85,31 @@ class TecraTools(Base_class):
 
     #Funciones del programa
     def buscar_programas(self):
-        response = uti.web_tools.get(self.api_url+"/api/programs/get_all").json
-
-        self.bloque_main_programas.clear()
+        self.loading += 1
+        try:
+            self.bloque_main_programas.clear()
+            self.text_main_mal_internet.visible = False
+            response = uti.web_tools.get(self.api_url+"/api/programs/get_all").json
+            uti.debug_print(response)
+            response = sorted(response['lista'], key=lambda x: x['nombre'].lower())
         
-        for i,x in enumerate(response['lista']):
-            # self.asset_downloader.download(self.api_url+x['icono'], x['icono'].split('/')[-1])
-            self.bloque_main_programas.add(
-                Programa_search(
-                    (0,100*i +20), x['icono'], x['nombre'].capitalize(), x['descripcion'], self.config.fonts["mononoki"],
-                    assest_downloader=self.asset_downloader,
-                    api_url=self.api_url,
-                    lock=self.lock,
-                    item = x
-                ), 
-                clicking=True
-            )
+            for i,x in sorted(enumerate(response)):
+                # self.asset_downloader.download(self.api_url+x['icono'], x['icono'].split('/')[-1])
+                self.bloque_main_programas.add(
+                    Programa_search(
+                        (0,100*i +20), x['icono'], x['nombre'].capitalize(), x['descripcion'], self.config.fonts["mononoki"],
+                        assest_downloader=self.asset_downloader,
+                        api_url=self.api_url,
+                        lock=self.app_lock,
+                        item = x
+                    ), 
+                    clicking=True
+                )
+        except:
+            self.text_main_mal_internet.visible = True
+            return
+        finally:
+            self.loading -= 1
 
 if __name__ == "__main__":
     # 415,550
@@ -106,7 +123,7 @@ if __name__ == "__main__":
         my_company="Edouard Sandoval",
         author="Edouard Sandoval",
         version="0.4.0",
-        fonts={"mononoki": "./Data/fonts/mononoki Bold Nerd Font Complete Mono.ttf"},
+        fonts={"mononoki": "./Data/fonts/mononoki Bold Nerd Font Complete Mono.ttf",'simbolos':'./Data/fonts/Symbols.ttf'},
         noframe=True
     )
     app = TecraTools(config)
